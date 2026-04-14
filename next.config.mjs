@@ -1,4 +1,3 @@
-
 import { withSentryConfig } from "@sentry/nextjs";
 
 /** @type {import('next').NextConfig} */
@@ -6,37 +5,23 @@ const nextConfig = {
   transpilePackages: ["three", "@react-three/fiber", "@react-three/drei"],
 };
 
-export default withSentryConfig(
-  nextConfig,
-  {
-    // For all available options, see:
-    // https://github.com/getsentry/sentry-webpack-plugin#options
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
 
-    // Suppresses source map uploading logs during build
-    silent: true,
-    org: "YOUR_SENTRY_ORG",
-    project: "YOUR_SENTRY_PROJECT",
-  },
-  {
-    // For all available options, see:
-    // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
+  // Upload a wider set of source maps for readable production stack traces
+  widenClientFileUpload: true,
 
-    // Upload a larger set of source maps for prettier stack traces (increases build time)
-    widenClientFileUpload: true,
+  // Proxy Sentry requests through Next.js to bypass ad-blockers
+  tunnelRoute: "/monitoring",
 
-    // Transpiles SDK to be compatible with IE11 (increases bundle size)
-    transpileClientSDK: true,
+  // Hide source maps from client bundles
+  hideSourceMaps: true,
 
-    // Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
-    tunnelRoute: "/monitoring",
+  // Tree-shake Sentry logger statements in production
+  disableLogger: true,
 
-    // Hides source maps from generated client bundles
-    hideSourceMaps: true,
-
-    // Automatically tree-shake Sentry logger statements to reduce bundle size
-    disableLogger: true,
-
-    // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router, only Pages Router.)
-    automaticVercelMonitors: true,
-  }
-);
+  // Suppress build output outside CI
+  silent: !process.env.CI,
+});
