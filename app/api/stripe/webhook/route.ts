@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { after } from 'next/server'
 import { getStripe } from '@/lib/stripe'
 import { registerDomain } from '@/lib/namecheap'
 import { createWhmAccount, WHM_PLAN_MAP } from '@/lib/whm'
@@ -62,168 +63,174 @@ export async function POST(request: NextRequest) {
         if (metadata.type === 'domain') {
           const domain = metadata.domain
           const email = metadata.email || session.customer_email || ''
+          const sessionId = session.id
 
-          try {
-            let contactInfo: ContactInfo = {}
+          after(async () => {
+            try {
+              let contactInfo: ContactInfo = {}
 
-            if (metadata.contactInfo) {
-              try {
-                contactInfo = JSON.parse(metadata.contactInfo)
-              } catch (e) {
-                console.error('Failed to parse contactInfo from metadata:', e)
+              if (metadata.contactInfo) {
+                try {
+                  contactInfo = JSON.parse(metadata.contactInfo)
+                } catch (e) {
+                  console.error('Failed to parse contactInfo from metadata:', e)
+                }
               }
-            }
 
-            const metadataContactInfo: ContactInfo = {
-              firstName: metadata.firstName,
-              lastName: metadata.lastName,
-              email: metadata.emailAddress || metadata.email,
-              address1: metadata.address1,
-              city: metadata.city,
-              stateProvince: metadata.stateProvince,
-              postalCode: metadata.postalCode,
-              country: metadata.country,
-              phone: metadata.phone,
-            }
+              const metadataContactInfo: ContactInfo = {
+                firstName: metadata.firstName,
+                lastName: metadata.lastName,
+                email: metadata.emailAddress || metadata.email,
+                address1: metadata.address1,
+                city: metadata.city,
+                stateProvince: metadata.stateProvince,
+                postalCode: metadata.postalCode,
+                country: metadata.country,
+                phone: metadata.phone,
+              }
 
-            contactInfo = { ...metadataContactInfo, ...contactInfo }
+              contactInfo = { ...metadataContactInfo, ...contactInfo }
 
-            const hasAddress = contactInfo.address1 || contactInfo.address
-            if (!contactInfo.firstName || !contactInfo.lastName || !contactInfo.phone || !hasAddress) {
-              console.warn(
-                `Domain registration for ${domain} using partial/default contact info. Provided: ${JSON.stringify(contactInfo)}`,
+              const hasAddress = contactInfo.address1 || contactInfo.address
+              if (!contactInfo.firstName || !contactInfo.lastName || !contactInfo.phone || !hasAddress) {
+                console.warn(
+                  `Domain registration for ${domain} using partial/default contact info. Provided: ${JSON.stringify(contactInfo)}`,
+                )
+              }
+
+              if (!domain) {
+                throw new Error('Missing domain metadata in Stripe webhook')
+              }
+
+              const contactData = {
+                firstName: contactInfo.firstName || 'Domain',
+                lastName: contactInfo.lastName || 'Owner',
+                address1: contactInfo.address1 || contactInfo.address || '123 Main St',
+                city: contactInfo.city || 'San Francisco',
+                stateProvince: contactInfo.stateProvince || contactInfo.state || 'CA',
+                postalCode: contactInfo.postalCode || '94102',
+                country: contactInfo.country || 'US',
+                phone: contactInfo.phone || '+1.5555555555',
+                email: email,
+              }
+
+              const result = await registerDomain(
+                domain,
+                1,
+                contactData,
+                contactData,
+                contactData,
+                contactData,
+                undefined,
+                true,
+                true,
               )
+
+              console.log(`Namecheap registration result for ${domain}:`, result)
+
+              if (!result.registered) {
+                throw new Error(
+                  `Namecheap registration failed for ${domain}: ${JSON.stringify(result)}`,
+                )
+              }
+
+              const { error: dbError } = await supabase.from('domains').insert({
+                owner_email: email,
+                domain_name: domain,
+                registered_at: new Date().toISOString(),
+                expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+                namecheap_order_id: result.orderId || '',
+              })
+              if (dbError) console.error('Supabase insert error (domains):', dbError)
+
+            } catch (domainError) {
+              const errMsg = domainError instanceof Error ? domainError.message : String(domainError)
+              console.error(`[Webhook] Domain registration failed for ${domain}:`, errMsg)
+
+              await supabase.from('failed_jobs').insert({
+                type: 'domain_registration',
+                customer_email: email,
+                payload: { domain, metadata },
+                error: errMsg,
+                stripe_session_id: sessionId,
+              })
+
+              await sendFailureAlert({
+                type: 'domain_registration',
+                customerEmail: email,
+                subject: `Domain registration failed — ${domain}`,
+                details: { Customer: email, Domain: domain },
+                error: errMsg,
+                stripeSessionId: sessionId,
+              })
             }
-
-            if (!domain) {
-              throw new Error('Missing domain metadata in Stripe webhook')
-            }
-
-            const contactData = {
-              firstName: contactInfo.firstName || 'Domain',
-              lastName: contactInfo.lastName || 'Owner',
-              address1: contactInfo.address1 || contactInfo.address || '123 Main St',
-              city: contactInfo.city || 'San Francisco',
-              stateProvince: contactInfo.stateProvince || contactInfo.state || 'CA',
-              postalCode: contactInfo.postalCode || '94102',
-              country: contactInfo.country || 'US',
-              phone: contactInfo.phone || '+1.5555555555',
-              email: email,
-            }
-
-            const result = await registerDomain(
-              domain,
-              1,
-              contactData,
-              contactData,
-              contactData,
-              contactData,
-              undefined,
-              true,
-              true,
-            )
-
-            console.log(`Namecheap registration result for ${domain}:`, result)
-
-            if (!result.registered) {
-              throw new Error(
-                `Namecheap registration failed for ${domain}: ${JSON.stringify(result)}`,
-              )
-            }
-
-            const { error: dbError } = await supabase.from('domains').insert({
-              owner_email: email,
-              domain_name: domain,
-              registered_at: new Date().toISOString(),
-              expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-              namecheap_order_id: result.orderId || '',
-            })
-            if (dbError) console.error('Supabase insert error (domains):', dbError)
-
-          } catch (domainError) {
-            const errMsg = domainError instanceof Error ? domainError.message : String(domainError)
-            console.error(`[Webhook] Domain registration failed for ${domain}:`, errMsg)
-
-            await supabase.from('failed_jobs').insert({
-              type: 'domain_registration',
-              customer_email: email,
-              payload: { domain, metadata },
-              error: errMsg,
-              stripe_session_id: session.id,
-            })
-
-            await sendFailureAlert({
-              type: 'domain_registration',
-              customerEmail: email,
-              subject: `Domain registration failed — ${domain}`,
-              details: { Customer: email, Domain: domain },
-              error: errMsg,
-              stripeSessionId: session.id,
-            })
-          }
+          })
 
         } else if (metadata.type === 'hosting') {
           const plan = metadata.plan || 'basic'
           const email = metadata.email || session.customer_email || ''
           const whmUsername = metadata.whmUsername
           const whmDomain = metadata.whmDomain
+          const sessionId = session.id
           const subscriptionId =
             typeof session.subscription === 'string'
               ? session.subscription
               : session.subscription?.toString() || ''
 
-          try {
-            const whmPlan = WHM_PLAN_MAP[plan] || 'webcrtae_basic'
+          after(async () => {
+            try {
+              const whmPlan = WHM_PLAN_MAP[plan] || 'webcrtae_basic'
 
-            console.log(`[WHM] Creating account for subscription: plan=${whmPlan}, domain=${whmDomain}, username=${whmUsername}`)
+              console.log(`[WHM] Creating account for subscription: plan=${whmPlan}, domain=${whmDomain}, username=${whmUsername}`)
 
-            const whmResult = await createWhmAccount(whmDomain || email, email, whmPlan, whmUsername)
-            console.log(`[WHM] Account created: ${whmResult.username}`)
+              const whmResult = await createWhmAccount(whmDomain || email, email, whmPlan, whmUsername)
+              console.log(`[WHM] Account created: ${whmResult.username}`)
 
-            const { error: dbError } = await supabase.from('subscriptions').insert({
-              customer_email: email,
-              plan: plan,
-              stripe_subscription_id: subscriptionId,
-              status: 'active',
-              whm_username: whmResult.username,
-              created_at: new Date().toISOString(),
-            })
-            if (dbError) console.error('Supabase insert error (subscriptions):', dbError)
+              const { error: dbError } = await supabase.from('subscriptions').insert({
+                customer_email: email,
+                plan: plan,
+                stripe_subscription_id: subscriptionId,
+                status: 'active',
+                whm_username: whmResult.username,
+                created_at: new Date().toISOString(),
+              })
+              if (dbError) console.error('Supabase insert error (subscriptions):', dbError)
 
-            // Invite user to create their dashboard account
-            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-            console.log(`[Supabase] Inviting user: ${email}`)
-            const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
-              data: { plan, whm_username: whmResult.username },
-              redirectTo: `${appUrl}/auth/confirm`,
-            })
-            if (inviteError) {
-              console.error('Supabase invite error:', inviteError.message, inviteError)
-            } else {
-              console.log(`[Supabase] Invite sent successfully to ${email}`, inviteData?.user?.id)
+              // Invite user to create their dashboard account
+              const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+              console.log(`[Supabase] Inviting user: ${email}`)
+              const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
+                data: { plan, whm_username: whmResult.username },
+                redirectTo: `${appUrl}/auth/confirm`,
+              })
+              if (inviteError) {
+                console.error('Supabase invite error:', inviteError.message, inviteError)
+              } else {
+                console.log(`[Supabase] Invite sent successfully to ${email}`, inviteData?.user?.id)
+              }
+
+            } catch (hostingError) {
+              const errMsg = hostingError instanceof Error ? hostingError.message : String(hostingError)
+              console.error(`[Webhook] Hosting setup failed for ${email}:`, errMsg)
+
+              await supabase.from('failed_jobs').insert({
+                type: 'hosting_setup',
+                customer_email: email,
+                payload: { plan, whmDomain, whmUsername, subscriptionId, metadata },
+                error: errMsg,
+                stripe_session_id: sessionId,
+              })
+
+              await sendFailureAlert({
+                type: 'hosting_setup',
+                customerEmail: email,
+                subject: `Hosting setup failed — ${email}`,
+                details: { Customer: email, Plan: plan, Domain: whmDomain || '(none)', 'Stripe sub': subscriptionId },
+                error: errMsg,
+                stripeSessionId: sessionId,
+              })
             }
-
-          } catch (hostingError) {
-            const errMsg = hostingError instanceof Error ? hostingError.message : String(hostingError)
-            console.error(`[Webhook] Hosting setup failed for ${email}:`, errMsg)
-
-            await supabase.from('failed_jobs').insert({
-              type: 'hosting_setup',
-              customer_email: email,
-              payload: { plan, whmDomain, whmUsername, subscriptionId, metadata },
-              error: errMsg,
-              stripe_session_id: session.id,
-            })
-
-            await sendFailureAlert({
-              type: 'hosting_setup',
-              customerEmail: email,
-              subject: `Hosting setup failed — ${email}`,
-              details: { Customer: email, Plan: plan, Domain: whmDomain || '(none)', 'Stripe sub': subscriptionId },
-              error: errMsg,
-              stripeSessionId: session.id,
-            })
-          }
+          })
         }
         break
       }
