@@ -67,8 +67,8 @@ export async function POST(request: NextRequest) {
           emailAddress: contactInfo?.email || '',
           contactInfo: contactInfo ? JSON.stringify(contactInfo) : '',
         },
-        success_url: `${origin}?success=true&domain=${encodeURIComponent(domain)}`,
-        cancel_url: `${origin}?canceled=true`,
+        success_url: `${origin}/checkout/success?type=domain&domain=${encodeURIComponent(domain)}`,
+        cancel_url: `${origin}`,
       })
 
       return NextResponse.json({ url: session.url })
@@ -111,8 +111,8 @@ export async function POST(request: NextRequest) {
         whmUsername: whmUsername || '',
         whmDomain: whmDomain || '',
       },
-      success_url: `${origin}?success=true&plan=${plan}`,
-      cancel_url: `${origin}?canceled=true`,
+      success_url: `${origin}/checkout/success?type=hosting&plan=${plan}`,
+      cancel_url: `${origin}`,
     })
 
     return NextResponse.json({ url: session.url })
