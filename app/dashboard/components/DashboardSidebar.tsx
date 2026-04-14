@@ -56,7 +56,7 @@ export default function DashboardSidebar({ userEmail }: { userEmail: string }) {
   }
 
   return (
-    <aside className="flex h-screen w-60 flex-col border-r border-white/5 bg-surface">
+    <aside className="hidden md:flex h-screen w-60 flex-col border-r border-white/5 bg-surface">
       {/* Logo */}
       <div className="flex items-center gap-2.5 border-b border-white/5 px-5 py-5">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-accent-purple to-accent-blue">

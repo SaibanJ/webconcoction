@@ -27,7 +27,7 @@ export default async function HostingPage() {
   const activeSub = subscriptions?.find((s) => s.status === 'active')
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white">Hosting</h1>
         <p className="mt-1 text-sm text-gray-400">Manage your hosting plan and access cPanel.</p>

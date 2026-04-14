@@ -12,7 +12,7 @@ export default async function SettingsPage({
   const isNewAccount = params.set_password === 'true'
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white">Settings</h1>
         <p className="mt-1 text-sm text-gray-400">Manage your account.</p>

@@ -19,7 +19,7 @@ export default async function DashboardPage() {
   const activeSub = subscriptions?.find((s) => s.status === 'active')
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white">Overview</h1>
         <p className="mt-1 text-sm text-gray-400">Welcome back, {user!.email}</p>
