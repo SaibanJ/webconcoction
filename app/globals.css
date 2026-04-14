@@ -1,26 +1,112 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #050510;
+  --foreground: #e4e4ef;
+  --accent-purple: #8b5cf6;
+  --accent-blue: #3b82f6;
+  --accent-cyan: #06b6d4;
+  --surface: #0f0f23;
+  --surface-light: #1a1a3e;
+  --border-dim: rgba(139, 92, 246, 0.15);
+  --border-glow: rgba(139, 92, 246, 0.4);
+  --glow-purple: rgba(139, 92, 246, 0.3);
+  --glow-blue: rgba(59, 130, 246, 0.3);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-surface: var(--surface);
+  --color-surface-light: var(--surface-light);
+  --color-border-dim: var(--border-dim);
+  --color-border-glow: var(--border-glow);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-purple);
+  border-radius: 3px;
+}
+
+/* Glow button effect */
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.btn-glow::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(
+    135deg,
+    var(--accent-purple),
+    var(--accent-blue),
+    var(--accent-cyan)
+  );
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  filter: blur(8px);
+}
+.btn-glow:hover::before {
+  opacity: 1;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(
+    135deg,
+    var(--accent-purple),
+    var(--accent-blue),
+    var(--accent-cyan)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass card */
+.glass-card {
+  background: rgba(15, 15, 35, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-dim);
+  transition: all 0.3s ease;
+}
+.glass-card:hover {
+  border-color: var(--border-glow);
+  box-shadow: 0 0 30px var(--glow-purple);
+}
+
+/* Pulse animation for availability badge */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 5px var(--accent-purple);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--accent-purple);
+  }
+}
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }
