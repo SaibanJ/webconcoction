@@ -13,16 +13,27 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WebConcoction | Premium Domains, Hosting & Web Solutions",
+  title: "WebConcoction | Custom Websites, Domains & Hosting",
   description:
-    "Build stunning websites with premium domains and lightning-fast hosting. Register domains, choose a hosting plan, and launch your digital presence with WebConcoction.",
+    "WebConcoction builds and hosts custom websites for businesses. We offer domain registration, managed cPanel hosting plans starting at $19.99/mo, and professional website design and development. Setup fees from $699.99.",
   keywords: [
-    "domain registration",
+    "custom website design",
     "web hosting",
-    "website builder",
-    "SSL",
-    "CDN",
+    "domain registration",
+    "cPanel hosting",
+    "WordPress hosting",
+    "website development",
+    "managed hosting",
+    "small business website",
   ],
+  openGraph: {
+    title: "WebConcoction | Custom Websites, Domains & Hosting",
+    description:
+      "We build and host custom websites for businesses. Hosting plans from $19.99/mo with cPanel access, domain registration, and professional website builds from $699.99.",
+    url: "https://webconcoction.com",
+    siteName: "WebConcoction",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
