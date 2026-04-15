@@ -108,7 +108,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="border-t border-white/5 bg-background/95 px-6 py-4 backdrop-blur-xl md:hidden">
+        <div className="border-t border-white/10 bg-background px-6 py-5 shadow-2xl md:hidden">
           <div className="flex flex-col gap-4">
             <a
               href="#domains"

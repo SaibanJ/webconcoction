@@ -14,7 +14,7 @@ export default function Home() {
       <Navbar />
 
       {/* Hero — The Character and Their Desire */}
-      <section className="relative flex min-h-screen items-center justify-center px-4">
+      <section className="relative flex min-h-screen items-center justify-center px-4 pt-20 md:pt-0">
         <HeroSceneLoader />
 
         <div className="relative z-10 mx-auto max-w-4xl text-center">
