@@ -7,6 +7,7 @@ const plans = [
     id: "basic",
     name: "Basic",
     price: 19.99,
+    setupFee: 699.99,
     description: "Perfect for personal sites and small WordPress projects",
     features: [
       "1 Website",
@@ -23,7 +24,8 @@ const plans = [
   {
     id: "pro",
     name: "Pro",
-    price: 29,
+    price: 49.99,
+    setupFee: 1499.99,
     description: "For growing businesses that need more room to scale",
     features: [
       "2 Websites",
@@ -41,7 +43,8 @@ const plans = [
   {
     id: "business",
     name: "Business",
-    price: 99,
+    price: 99.99,
+    setupFee: 2999.99,
     description: "High-resource hosting for serious applications",
     features: [
       "4 Websites",
@@ -141,8 +144,13 @@ export default function PricingSection() {
                 </div>
 
                 <div className="mb-8">
-                  <span className="text-5xl font-bold text-white">${Number.isInteger(p.price) ? p.price : p.price.toFixed(2)}</span>
-                  <span className="text-gray-400">/mo</span>
+                  <div>
+                    <span className="text-5xl font-bold text-white">${p.price.toFixed(2)}</span>
+                    <span className="text-gray-400">/mo</span>
+                  </div>
+                  <p className="mt-1.5 text-xs text-gray-500">
+                    + <span className="text-gray-400 font-medium">${p.setupFee.toFixed(2)}</span> one-time setup fee
+                  </p>
                 </div>
 
                 <ul className="mb-8 flex-1 space-y-3">
@@ -220,8 +228,8 @@ export default function PricingSection() {
                 <span className="gradient-text">{plan?.name}</span> account
               </h3>
               <p className="mt-1 text-sm text-gray-400">
-                ${plan ? (Number.isInteger(plan.price) ? plan.price : plan.price.toFixed(2)) : ''}/mo — fill in your account details to continue to
-                payment.
+                Due today: <span className="text-white font-medium">${plan ? (plan.setupFee + plan.price).toFixed(2) : ''}</span>
+                {' '}(setup + first month), then <span className="text-white font-medium">${plan?.price.toFixed(2)}/mo</span>
               </p>
             </div>
 

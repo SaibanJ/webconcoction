@@ -172,23 +172,52 @@ export async function POST(request: NextRequest) {
           const whmUsername = metadata.whmUsername
           const whmDomain = metadata.whmDomain
           const sessionId = session.id
-          const subscriptionId =
-            typeof session.subscription === 'string'
-              ? session.subscription
-              : session.subscription?.toString() || ''
+          const customerId = typeof session.customer === 'string' ? session.customer : null
+          const paymentIntentId = typeof session.payment_intent === 'string' ? session.payment_intent : null
+
+          // Recurring Stripe Price IDs — create these in Stripe dashboard and add to env.
+          // Prices should be monthly recurring at $19.99 / $49.99 / $99.99.
+          const PLAN_PRICE_IDS: Record<string, string> = {
+            basic:    process.env.STRIPE_PRICE_ID_BASIC    || '',
+            pro:      process.env.STRIPE_PRICE_ID_PRO      || '',
+            business: process.env.STRIPE_PRICE_ID_BUSINESS || '',
+          }
 
           after(async () => {
+            let subscriptionId = ''
             try {
+              const stripe = getStripe()
               const whmPlan = WHM_PLAN_MAP[plan] || 'webcrtae_basic'
 
-              console.log(`[WHM] Creating account for subscription: plan=${whmPlan}, domain=${whmDomain}, username=${whmUsername}`)
+              console.log(`[WHM] Creating account: plan=${whmPlan}, domain=${whmDomain}, username=${whmUsername}`)
 
               const whmResult = await createWhmAccount(whmDomain || email, email, whmPlan, whmUsername)
               console.log(`[WHM] Account created: ${whmResult.username}`)
 
+              // Create the recurring subscription using the saved card.
+              // trial_end = 30 days so the customer isn't double-charged
+              // (they already paid first month in the upfront checkout).
+              const priceId = PLAN_PRICE_IDS[plan]
+              if (customerId && paymentIntentId && priceId) {
+                const pi = await stripe.paymentIntents.retrieve(paymentIntentId)
+                const pmId = typeof pi.payment_method === 'string' ? pi.payment_method : null
+                if (pmId) {
+                  const subscription = await stripe.subscriptions.create({
+                    customer: customerId,
+                    default_payment_method: pmId,
+                    trial_end: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
+                    items: [{ price: priceId }],
+                  })
+                  subscriptionId = subscription.id
+                  console.log(`[Stripe] Subscription created: ${subscriptionId}`)
+                }
+              } else {
+                console.warn(`[Stripe] Skipping subscription creation — missing customerId, paymentIntentId, or priceId for plan=${plan}`)
+              }
+
               const { error: dbError } = await supabase.from('subscriptions').insert({
                 customer_email: email,
-                plan: plan,
+                plan,
                 stripe_subscription_id: subscriptionId,
                 status: 'active',
                 whm_username: whmResult.username,
@@ -216,7 +245,7 @@ export async function POST(request: NextRequest) {
               await supabase.from('failed_jobs').insert({
                 type: 'hosting_setup',
                 customer_email: email,
-                payload: { plan, whmDomain, whmUsername, subscriptionId, metadata },
+                payload: { plan, whmDomain, whmUsername, stripe_subscription_id: subscriptionId, metadata },
                 error: errMsg,
                 stripe_session_id: sessionId,
               })

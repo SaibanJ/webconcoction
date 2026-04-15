@@ -3,11 +3,11 @@ import { getStripe } from '@/lib/stripe'
 
 const HOSTING_PLANS: Record<
   string,
-  { name: string; priceInCents: number; stripePriceId?: string }
+  { name: string; priceInCents: number; setupFeeInCents: number }
 > = {
-  basic: { name: 'Basic Hosting', priceInCents: 1999 },
-  pro: { name: 'Pro Hosting', priceInCents: 2900 },
-  business: { name: 'Business Hosting', priceInCents: 9900 },
+  basic:    { name: 'Basic Hosting',    priceInCents: 1999,   setupFeeInCents: 69999  },
+  pro:      { name: 'Pro Hosting',      priceInCents: 4999,   setupFeeInCents: 149999 },
+  business: { name: 'Business Hosting', priceInCents: 9999,   setupFeeInCents: 299999 },
 }
 
 export async function POST(request: NextRequest) {
@@ -84,22 +84,37 @@ export async function POST(request: NextRequest) {
 
     const selectedPlan = HOSTING_PLANS[plan]
 
+    // Use payment mode so we can charge setup fee + first month together.
+    // The webhook will create the recurring subscription after payment succeeds.
     const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
+      mode: 'payment',
       payment_method_types: ['card'],
       customer_email: email,
+      customer_creation: 'always',
+      payment_intent_data: {
+        setup_future_usage: 'off_session', // saves card for recurring subscription
+        description: `${selectedPlan.name} — setup fee + first month`,
+      },
       line_items: [
         {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: selectedPlan.name,
-              description: `Monthly ${selectedPlan.name} subscription`,
+              name: `${selectedPlan.name} — One-time Setup Fee`,
+              description: 'Website design, development, and initial setup',
+            },
+            unit_amount: selectedPlan.setupFeeInCents,
+          },
+          quantity: 1,
+        },
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `${selectedPlan.name} — First Month`,
+              description: 'Hosting, maintenance, and cPanel access',
             },
             unit_amount: selectedPlan.priceInCents,
-            recurring: {
-              interval: 'month',
-            },
           },
           quantity: 1,
         },

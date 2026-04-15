@@ -29,17 +29,18 @@ function SuccessContent() {
         {isHosting ? (
           <>
             <p className="mb-2 text-gray-400">
-              Your <span className="capitalize text-white">{plan}</span> hosting plan is active.
+              Your <span className="capitalize text-white">{plan}</span> plan payment was received — setup fee and first month are paid.
             </p>
             <p className="mb-8 text-gray-400">
-              We just sent you an email to set up your account password. Check your inbox and click the link to access your dashboard.
+              We&apos;ll be in touch shortly to kick off your website build. In the meantime, check your inbox for an invite to set up your dashboard account.
             </p>
             <div className="glass-card rounded-2xl p-5 text-left text-sm text-gray-400 mb-8">
-              <p className="mb-2 font-semibold text-white">Next steps:</p>
+              <p className="mb-2 font-semibold text-white">What happens next:</p>
               <ol className="space-y-1.5 list-decimal list-inside">
-                <li>Check your email for the invite</li>
-                <li>Click the link to set your password</li>
-                <li>Log in to your dashboard</li>
+                <li>Check your email and set your password</li>
+                <li>We contact you to start your website</li>
+                <li>Your site goes live on your domain</li>
+                <li>Monthly billing begins after your first month</li>
               </ol>
             </div>
             <Link

@@ -11,8 +11,8 @@ const PLAN_LABELS: Record<string, string> = {
 
 const PLAN_PRICES: Record<string, number> = {
   basic: 19.99,
-  pro: 29,
-  business: 99,
+  pro: 49.99,
+  business: 99.99,
 }
 
 export default async function HostingPage() {
