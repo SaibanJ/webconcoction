@@ -52,17 +52,23 @@ function SuccessContent() {
         ) : (
           <>
             <p className="mb-2 text-gray-400">
-              <span className="text-white font-semibold">{domain}</span> is being registered.
+              <span className="text-white font-semibold">{domain}</span> is being registered and will be active within a few minutes.
             </p>
             <p className="mb-8 text-gray-400">
-              It typically becomes active within a few minutes. You can track it in your dashboard.
+              To manage your domain, track its status, and access cPanel, you&apos;ll need a hosting plan. Pick one below to complete your setup.
             </p>
             <Link
-              href="/dashboard"
+              href="/#pricing"
               className="btn-glow inline-block rounded-xl bg-gradient-to-r from-accent-purple to-accent-blue px-8 py-3 font-semibold text-white hover:opacity-90"
             >
-              Go to dashboard
+              Choose a hosting plan
             </Link>
+            <p className="mt-4 text-sm text-gray-500">
+              Already have a plan?{' '}
+              <Link href="/login" className="text-accent-purple hover:underline">
+                Log in to your dashboard
+              </Link>
+            </p>
           </>
         )}
 
