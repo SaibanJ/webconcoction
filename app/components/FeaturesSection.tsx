@@ -2,7 +2,7 @@ const features = [
   {
     title: "Global CDN",
     description:
-      "Content delivered from 200+ edge locations worldwide for blazing-fast load times.",
+      "Your site loads in under 50ms from anywhere in the world. Fast sites rank higher on Google and convert visitors into customers.",
     icon: (
       <svg
         className="h-6 w-6"
@@ -20,9 +20,9 @@ const features = [
     ),
   },
   {
-    title: "Auto SSL",
+    title: "Free SSL — Always",
     description:
-      "Free SSL certificates automatically provisioned and renewed for all your domains.",
+      "HTTPS is non-negotiable. Every domain we host gets a free SSL certificate — issued automatically, renewed forever, no action needed on your part.",
     icon: (
       <svg
         className="h-6 w-6"
@@ -40,9 +40,9 @@ const features = [
     ),
   },
   {
-    title: "One-Click Deploy",
+    title: "Full cPanel Access",
     description:
-      "Connect your Git repo and deploy instantly. Zero-downtime deployments every time.",
+      "You own your environment. Log into cPanel anytime to manage files, databases, email accounts, and more — full control, no gatekeeping.",
     icon: (
       <svg
         className="h-6 w-6"
@@ -54,7 +54,7 @@ const features = [
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={1.5}
-          d="M13 10V3L4 14h7v7l9-11h-7z"
+          d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"
         />
       </svg>
     ),
@@ -62,7 +62,7 @@ const features = [
   {
     title: "DDoS Protection",
     description:
-      "Enterprise-grade security with automatic DDoS mitigation and WAF protection.",
+      "Enterprise-grade security with automatic DDoS mitigation keeps your site online even under attack. Your reputation stays intact.",
     icon: (
       <svg
         className="h-6 w-6"
@@ -82,7 +82,7 @@ const features = [
   {
     title: "99.99% Uptime",
     description:
-      "Redundant infrastructure with automatic failover ensures your sites stay online.",
+      "Redundant infrastructure with automatic failover. If a server hiccups, your site doesn't notice. Downtime means lost customers — we make sure that never happens.",
     icon: (
       <svg
         className="h-6 w-6"
@@ -100,9 +100,9 @@ const features = [
     ),
   },
   {
-    title: "24/7 Support",
+    title: "Client Dashboard",
     description:
-      "Expert support team available around the clock via chat, email, and phone.",
+      "A dedicated portal to track your site status, hosting resources, domains, and support — all in one place. You stay informed without lifting a finger.",
     icon: (
       <svg
         className="h-6 w-6"
@@ -114,28 +114,52 @@ const features = [
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={1.5}
-          d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"
+          d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
         />
       </svg>
     ),
   },
 ];
 
+const stats = [
+  { value: "99.99%", label: "Uptime" },
+  { value: "50ms", label: "Avg Response" },
+  { value: "Free", label: "SSL Always" },
+  { value: "24/7", label: "Support" },
+];
+
 export default function FeaturesSection() {
   return (
     <section id="features" className="relative py-28 px-4">
       <div className="mx-auto max-w-6xl">
+        {/* Guide intro */}
         <div className="mb-16 text-center">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-accent-purple/30 bg-accent-purple/10 px-4 py-1.5 text-sm text-accent-purple">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent-purple" />
+            Your web partner
+          </div>
           <h2 className="mb-4 text-4xl font-bold md:text-5xl">
-            Why{" "}
-            <span className="gradient-text">WebConcoction</span>?
+            We&apos;ve Done This Before.{" "}
+            <span className="gradient-text">We&apos;ll Do It for You.</span>
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-gray-400">
-            Everything you need to launch, manage, and scale your web presence
-            in one place.
+            WebConcoction is more than a hosting company. We build your site,
+            manage your infrastructure, and stay available when you need us —
+            so you never have to figure any of this out alone.
           </p>
         </div>
 
+        {/* Authority stats bar */}
+        <div className="mb-16 grid grid-cols-2 gap-4 rounded-2xl border border-white/5 bg-white/[0.02] p-6 md:grid-cols-4">
+          {stats.map((stat) => (
+            <div key={stat.label} className="text-center">
+              <div className="text-2xl font-bold gradient-text">{stat.value}</div>
+              <div className="text-sm text-gray-500">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Feature cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {features.map((feature) => (
             <div

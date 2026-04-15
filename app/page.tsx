@@ -1,8 +1,11 @@
 import Navbar from "./components/Navbar";
 import HeroSceneLoader from "./components/HeroSceneLoader";
 import DomainSearch from "./components/DomainSearch";
+import ProblemSection from "./components/ProblemSection";
+import ProcessSection from "./components/ProcessSection";
 import PricingSection from "./components/PricingSection";
 import FeaturesSection from "./components/FeaturesSection";
+import SuccessSection from "./components/SuccessSection";
 import Footer from "./components/Footer";
 
 export default function Home() {
@@ -10,7 +13,7 @@ export default function Home() {
     <main className="min-h-screen overflow-x-hidden">
       <Navbar />
 
-      {/* Hero Section */}
+      {/* Hero — The Character and Their Desire */}
       <section className="relative flex min-h-screen items-center justify-center px-4">
         <HeroSceneLoader />
 
@@ -21,23 +24,24 @@ export default function Home() {
           </div>
 
           <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight md:text-7xl">
-            Craft Your Digital
+            Your Business Deserves a
             <br />
-            <span className="gradient-text">Masterpiece</span>
+            <span className="gradient-text">Website That Works</span>
           </h1>
 
           <p className="mx-auto mb-10 max-w-2xl text-lg text-gray-400 md:text-xl">
-            Stunning websites, premium domains, and lightning-fast hosting --
-            all from one platform. Build, launch, and scale with{" "}
-            <span className="text-white font-semibold">WebConcoction</span>.
+            We build custom websites and host them on enterprise-grade
+            infrastructure — so your business looks professional, loads fast,
+            and stays online.{" "}
+            <span className="font-semibold text-white">Always.</span>
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <a
-              href="#domains"
+              href="#pricing"
               className="btn-glow inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent-purple to-accent-blue px-8 py-4 font-semibold text-white transition-all hover:opacity-90"
             >
-              Get Started
+              Get Your Website Built
               <svg
                 className="h-4 w-4"
                 fill="none"
@@ -73,11 +77,11 @@ export default function Home() {
             </a>
           </div>
 
-          {/* Stats */}
+          {/* Trust indicators */}
           <div className="mt-16 grid grid-cols-3 gap-8">
             <div>
-              <div className="text-3xl font-bold text-white">500K+</div>
-              <div className="text-sm text-gray-500">Domains Registered</div>
+              <div className="text-3xl font-bold text-white">Custom</div>
+              <div className="text-sm text-gray-500">No Templates Ever</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-white">99.99%</div>
@@ -108,21 +112,31 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Divider gradient */}
-      <div className="h-px bg-gradient-to-r from-transparent via-accent-purple/30 to-transparent" />
+      {/* The Problem */}
+      <div className="h-px bg-gradient-to-r from-transparent via-red-500/20 to-transparent" />
+      <ProblemSection />
 
+      {/* Domain Search */}
+      <div className="h-px bg-gradient-to-r from-transparent via-accent-purple/30 to-transparent" />
       <DomainSearch />
 
-      <div className="h-px bg-gradient-to-r from-transparent via-accent-purple/30 to-transparent" />
+      {/* The Plan — 3 Steps */}
+      <div className="h-px bg-gradient-to-r from-transparent via-accent-blue/30 to-transparent" />
+      <ProcessSection />
 
+      {/* Pricing */}
+      <div className="h-px bg-gradient-to-r from-transparent via-accent-purple/30 to-transparent" />
       <PricingSection />
 
+      {/* The Guide — Why WebConcoction */}
       <div className="h-px bg-gradient-to-r from-transparent via-accent-purple/30 to-transparent" />
-
       <FeaturesSection />
 
+      {/* Success Vision + Final CTA */}
       <div className="h-px bg-gradient-to-r from-transparent via-accent-purple/30 to-transparent" />
+      <SuccessSection />
 
+      <div className="h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
       <Footer />
     </main>
   );
