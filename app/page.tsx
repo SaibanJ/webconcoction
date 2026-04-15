@@ -17,7 +17,7 @@ export default function Home() {
         <div className="relative z-10 mx-auto max-w-4xl text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent-purple/30 bg-accent-purple/10 px-4 py-1.5 text-sm text-accent-purple">
             <span className="h-1.5 w-1.5 rounded-full bg-accent-purple" />
-            Now with AI-powered site builder
+            Now featuring client dashboards
           </div>
 
           <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight md:text-7xl">
