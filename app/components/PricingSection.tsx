@@ -6,7 +6,7 @@ const plans = [
   {
     id: "basic",
     name: "Basic",
-    price: 9,
+    price: 19.99,
     description: "Perfect for personal sites and small projects",
     features: [
       "1 Website",
@@ -126,70 +126,79 @@ export default function PricingSection() {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {plans.map((p) => (
-            <div
-              key={p.id}
-              className={`glass-card relative flex flex-col rounded-2xl p-8 ${
-                p.highlighted
-                  ? "border-accent-purple/40 shadow-[0_0_40px_rgba(139,92,246,0.15)]"
-                  : ""
-              }`}
-            >
-              {p.highlighted && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-accent-purple to-accent-blue px-4 py-1 text-xs font-semibold text-white">
-                  Most Popular
+        <div className="grid gap-6 pt-5 md:grid-cols-3">
+          {plans.map((p) => {
+            const cardInner = (
+              <div className="glass-card flex h-full flex-col rounded-2xl p-8">
+                <div className="mb-6">
+                  <h3 className="mb-1 text-xl font-semibold text-white">
+                    {p.name}
+                  </h3>
+                  <p className="text-sm text-gray-400">{p.description}</p>
                 </div>
-              )}
 
-              <div className="mb-6">
-                <h3 className="mb-1 text-xl font-semibold text-white">
-                  {p.name}
-                </h3>
-                <p className="text-sm text-gray-400">{p.description}</p>
-              </div>
+                <div className="mb-8">
+                  <span className="text-5xl font-bold text-white">${Number.isInteger(p.price) ? p.price : p.price.toFixed(2)}</span>
+                  <span className="text-gray-400">/mo</span>
+                </div>
 
-              <div className="mb-8">
-                <span className="text-5xl font-bold text-white">${p.price}</span>
-                <span className="text-gray-400">/mo</span>
-              </div>
-
-              <ul className="mb-8 flex-1 space-y-3">
-                {p.features.map((feature) => (
-                  <li
-                    key={feature}
-                    className="flex items-center gap-3 text-sm text-gray-300"
-                  >
-                    <svg
-                      className="h-4 w-4 shrink-0 text-accent-purple"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                <ul className="mb-8 flex-1 space-y-3">
+                  {p.features.map((feature) => (
+                    <li
+                      key={feature}
+                      className="flex items-center gap-3 text-sm text-gray-300"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
+                      <svg
+                        className="h-4 w-4 shrink-0 text-accent-purple"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
 
-              <button
-                onClick={() => setSelectedPlan(p.id)}
-                className={`btn-glow w-full rounded-xl py-3 font-semibold text-white transition-all ${
-                  p.highlighted
-                    ? "bg-gradient-to-r from-accent-purple to-accent-blue hover:opacity-90"
-                    : "border border-white/10 bg-white/5 hover:border-accent-purple hover:bg-white/10"
-                }`}
-              >
-                Get Started
-              </button>
-            </div>
-          ))}
+                <button
+                  onClick={() => setSelectedPlan(p.id)}
+                  className={`btn-glow w-full rounded-xl py-3 font-semibold text-white transition-all ${
+                    p.highlighted
+                      ? "bg-gradient-to-r from-accent-purple to-accent-blue hover:opacity-90"
+                      : "border border-white/10 bg-white/5 hover:border-accent-purple hover:bg-white/10"
+                  }`}
+                >
+                  Get Started
+                </button>
+              </div>
+            );
+
+            if (p.highlighted) {
+              return (
+                <div key={p.id} className="relative scale-[1.06] md:z-10">
+                  <div className="absolute -top-3.5 left-1/2 z-10 -translate-x-1/2 rounded-full bg-gradient-to-r from-accent-purple to-accent-blue px-4 py-1 text-xs font-semibold text-white">
+                    Most Popular
+                  </div>
+                  <div className="border-beam-track h-full">
+                    <div className="border-beam-clip" />
+                    {cardInner}
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div key={p.id}>
+                {cardInner}
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -208,7 +217,7 @@ export default function PricingSection() {
                 <span className="gradient-text">{plan?.name}</span> account
               </h3>
               <p className="mt-1 text-sm text-gray-400">
-                ${plan?.price}/mo — fill in your account details to continue to
+                ${plan ? (Number.isInteger(plan.price) ? plan.price : plan.price.toFixed(2)) : ''}/mo — fill in your account details to continue to
                 payment.
               </p>
             </div>

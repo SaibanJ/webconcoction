@@ -5,7 +5,7 @@ const HOSTING_PLANS: Record<
   string,
   { name: string; priceInCents: number; stripePriceId?: string }
 > = {
-  basic: { name: 'Basic Hosting', priceInCents: 900 },
+  basic: { name: 'Basic Hosting', priceInCents: 1999 },
   pro: { name: 'Pro Hosting', priceInCents: 2900 },
   business: { name: 'Business Hosting', priceInCents: 9900 },
 }

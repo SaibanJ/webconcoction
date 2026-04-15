@@ -11,7 +11,7 @@ export default function DomainActions({ domain }: { domain: string }) {
     setLoading(true)
     setMessage('')
 
-    const res = await fetch('/api/domain/renew', {
+    const res = await fetch('/api/domains/renew', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ domain }),
