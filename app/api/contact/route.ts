@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+
+const contactSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(100),
+  email: z.string().email('Invalid email address'),
+  message: z.string().min(10, 'Message must be at least 10 characters').max(5000),
+})
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, message } = await request.json()
+    const body = await request.json()
+    const parsed = contactSchema.safeParse(body)
 
-    if (!name?.trim() || !email?.trim() || !message?.trim()) {
-      return NextResponse.json(
-        { error: 'All fields are required' },
-        { status: 400 },
-      )
+    if (!parsed.success) {
+      const message = parsed.error.issues[0]?.message || 'Invalid input'
+      return NextResponse.json({ error: message }, { status: 400 })
     }
+
+    const { name, email, message } = parsed.data
 
     const apiKey = process.env.RESEND_API_KEY
     const toEmail = process.env.ALERT_TO_EMAIL

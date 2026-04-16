@@ -1,31 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkDomainAvailability } from "@/lib/namecheap";
+import { z } from "zod";
+
+const checkSchema = z.object({
+  domain: z.string().min(1).max(253).transform((d) =>
+    d.includes(".") ? d.toLowerCase().trim() : `${d.toLowerCase().trim()}.com`
+  ).refine((d) => /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z]{2,})+$/.test(d), {
+    message: "Invalid domain format",
+  }),
+})
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { domain } = body;
+    const parsed = checkSchema.safeParse(body)
 
-    if (!domain || typeof domain !== "string") {
-      return NextResponse.json(
-        { error: "A valid domain name is required" },
-        { status: 400 },
-      );
+    if (!parsed.success) {
+      const message = parsed.error.issues[0]?.message || 'Invalid domain'
+      return NextResponse.json({ error: message }, { status: 400 })
     }
 
-    // Normalize the domain: if no TLD provided, default to .com
-    const normalizedDomain = domain.includes(".")
-      ? domain.toLowerCase().trim()
-      : `${domain.toLowerCase().trim()}.com`;
-
-    // Basic validation
-    const domainRegex = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z]{2,})+$/;
-    if (!domainRegex.test(normalizedDomain)) {
-      return NextResponse.json(
-        { error: "Invalid domain format" },
-        { status: 400 },
-      );
-    }
+    const normalizedDomain = parsed.data.domain
 
     const result = await checkDomainAvailability(normalizedDomain);
 

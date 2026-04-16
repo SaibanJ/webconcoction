@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe'
+import { z } from 'zod'
 
 const HOSTING_PLANS: Record<
   string,
@@ -10,30 +11,53 @@ const HOSTING_PLANS: Record<
   business: { name: 'Business Hosting', priceInCents: 9999,   setupFeeInCents: 299999 },
 }
 
+const domainCheckoutSchema = z.object({
+  type: z.literal('domain'),
+  domain: z.string().min(1).max(253),
+  email: z.string().email(),
+  price: z.number().positive().optional(),
+  contactInfo: z.object({
+    firstName: z.string().min(1),
+    lastName: z.string().min(1),
+    email: z.string().email(),
+    address1: z.string().min(1),
+    city: z.string(),
+    stateProvince: z.string().min(1),
+    postalCode: z.string(),
+    country: z.string().min(2).max(2),
+    phone: z.string(),
+  }).optional(),
+})
+
+const hostingCheckoutSchema = z.object({
+  type: z.literal('hosting'),
+  plan: z.enum(['basic', 'pro', 'business']),
+  email: z.string().email(),
+  whmDomain: z.string().min(1).max(253),
+  whmUsername: z.string().max(8).optional(),
+})
+
+const checkoutSchema = z.discriminatedUnion('type', [
+  domainCheckoutSchema,
+  hostingCheckoutSchema,
+])
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { type, domain, plan, email, contactInfo, whmUsername, whmDomain } = body
+    const parsed = checkoutSchema.safeParse(body)
 
-    if (!type || (type !== 'domain' && type !== 'hosting')) {
-      return NextResponse.json(
-        { error: 'Invalid type. Must be "domain" or "hosting"' },
-        { status: 400 },
-      )
+    if (!parsed.success) {
+      const message = parsed.error.issues[0]?.message || 'Invalid input'
+      return NextResponse.json({ error: message }, { status: 400 })
     }
 
     const stripe = getStripe()
     const origin = request.headers.get('origin') || 'http://localhost:3000'
 
-    if (type === 'domain') {
-      if (!domain || !email) {
-        return NextResponse.json(
-          { error: 'Domain and email are required for domain registration' },
-          { status: 400 },
-        )
-      }
-
-      const price = body.price || 12.98
+    if (parsed.data.type === 'domain') {
+      const { domain, email, price: rawPrice, contactInfo } = parsed.data
+      const price = rawPrice ?? 12.98
 
       const session = await stripe.checkout.sessions.create({
         mode: 'payment',
@@ -75,13 +99,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Hosting subscription
-    if (!plan || !HOSTING_PLANS[plan]) {
-      return NextResponse.json(
-        { error: 'Invalid hosting plan' },
-        { status: 400 },
-      )
-    }
-
+    const { plan, email, whmDomain, whmUsername } = parsed.data as Extract<typeof parsed.data, { type: 'hosting' }>
     const selectedPlan = HOSTING_PLANS[plan]
 
     // Use payment mode so we can charge setup fee + first month together.
