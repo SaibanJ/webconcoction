@@ -56,6 +56,12 @@ export default function Navbar() {
             Features
           </a>
           <a
+            href="#contact"
+            className="text-sm text-gray-400 transition-colors hover:text-white"
+          >
+            Contact
+          </a>
+          <a
             href="/login"
             className="text-sm text-gray-400 transition-colors hover:text-white"
           >
