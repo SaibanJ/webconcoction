@@ -6,6 +6,7 @@ import PricingSection from "./components/PricingSection";
 import FeaturesSection from "./components/FeaturesSection";
 import SuccessSection from "./components/SuccessSection";
 import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
 
 export default function Home() {
   return (
@@ -37,6 +38,7 @@ export default function Home() {
 
       <div className="h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
       <Footer />
+      <ScrollToTop />
     </main>
   );
 }
