@@ -73,7 +73,7 @@ export default function Footer() {
               <li><a href="#domains" className="text-sm text-gray-500 transition-colors hover:text-white">Domain Search</a></li>
               <li><a href="#pricing" className="text-sm text-gray-500 transition-colors hover:text-white">Web Hosting</a></li>
               <li><a href="#features" className="text-sm text-gray-500 transition-colors hover:text-white">SSL Certificates</a></li>
-              <li><a href="#contact" className="text-sm text-gray-500 transition-colors hover:text-white">Website Builds</a></li>
+              <li><a href="#contact" className="text-sm text-gray-500 transition-colors hover:text-white">Custom Websites</a></li>
             </ul>
           </div>
 
@@ -89,10 +89,10 @@ export default function Footer() {
           <div>
             <h4 className="mb-4 text-sm font-semibold text-white">Legal</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-sm text-gray-500 transition-colors hover:text-white">Privacy Policy</a></li>
-              <li><a href="#" className="text-sm text-gray-500 transition-colors hover:text-white">Terms of Service</a></li>
-              <li><a href="#" className="text-sm text-gray-500 transition-colors hover:text-white">Cookie Policy</a></li>
-              <li><a href="#" className="text-sm text-gray-500 transition-colors hover:text-white">SLA</a></li>
+              <li><a href="/privacy" className="text-sm text-gray-500 transition-colors hover:text-white">Privacy Policy</a></li>
+              <li><a href="/terms" className="text-sm text-gray-500 transition-colors hover:text-white">Terms of Service</a></li>
+              <li><a href="/cookies" className="text-sm text-gray-500 transition-colors hover:text-white">Cookie Policy</a></li>
+              <li><a href="/sla" className="text-sm text-gray-500 transition-colors hover:text-white">SLA</a></li>
             </ul>
           </div>
         </div>
