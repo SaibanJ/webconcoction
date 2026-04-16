@@ -38,7 +38,7 @@ app.post('/cpanel-session', async (req, res) => {
     const response = await axios.get(
       `https://${WHM_HOST}:2087/json-api/create_user_session`,
       {
-        params: { 'api.version': '1', user: username },
+        params: { 'api.version': '1', user: username, service: 'cpaneld' },
         headers: { Authorization: `whm ${WHM_USERNAME}:${WHM_API_TOKEN}` },
         httpsAgent,
       }
