@@ -6,20 +6,35 @@ const parser = new XMLParser({
   attributeNamePrefix: '@_',
 })
 
-function getBaseUrl(): string {
-  const sandbox = process.env.NAMECHEAP_SANDBOX === 'true'
-  return sandbox
-    ? 'https://api.sandbox.namecheap.com/xml.response'
-    : 'https://api.namecheap.com/xml.response'
+function getProxyUrl(): string {
+  return `${process.env.WHM_PROXY_URL}/namecheap`
 }
 
+function getProxyHeaders(): Record<string, string> {
+  return { 'x-proxy-secret': process.env.WHM_PROXY_SECRET || '' }
+}
+
+// Base params no longer include credentials — proxy injects those server-side
 function getBaseParams(): Record<string, string> {
-  return {
-    ApiUser: process.env.NAMECHEAP_USERNAME || '',
-    ApiKey: process.env.NAMECHEAP_API_KEY || '',
-    UserName: process.env.NAMECHEAP_USERNAME || '',
-    ClientIp: process.env.NAMECHEAP_CLIENT_IP || '',
-  }
+  return {}
+}
+
+async function namecheapGet(params: Record<string, string>): Promise<string> {
+  const response = await axios.post(
+    getProxyUrl(),
+    { ...params, _method: 'GET' },
+    { headers: getProxyHeaders() }
+  )
+  return response.data
+}
+
+async function namecheapPost(params: Record<string, string>): Promise<string> {
+  const response = await axios.post(
+    getProxyUrl(),
+    params,
+    { headers: getProxyHeaders() }
+  )
+  return response.data
 }
 
 export interface DomainCheckResult {
@@ -32,14 +47,14 @@ export interface DomainCheckResult {
 export async function checkDomainAvailability(
   domain: string,
 ): Promise<DomainCheckResult> {
-  const params = new URLSearchParams({
+  const params = {
     ...getBaseParams(),
     Command: 'namecheap.domains.check',
     DomainList: domain,
-  })
+  }
 
-  const response = await axios.get(`${getBaseUrl()}?${params.toString()}`)
-  const parsed = parser.parse(response.data)
+  const data = await namecheapGet(params)
+  const parsed = parser.parse(data)
 
   const apiResponse = parsed.ApiResponse
   if (apiResponse['@_Status'] === 'ERROR') {
@@ -72,17 +87,17 @@ export async function checkDomainAvailability(
 async function getDomainPrice(domain: string): Promise<number> {
   const tld = domain.split('.').slice(1).join('.')
 
-  const params = new URLSearchParams({
+  const params = {
     ...getBaseParams(),
     Command: 'namecheap.users.getPricing',
     ProductType: 'DOMAIN',
     ProductCategory: 'REGISTER',
     ProductName: tld || 'com',
-  })
+  }
 
   try {
-    const response = await axios.get(`${getBaseUrl()}?${params.toString()}`)
-    const parsed = parser.parse(response.data)
+    const data = await namecheapGet(params)
+    const parsed = parser.parse(data)
 
     const apiResponse = parsed.ApiResponse
     if (apiResponse['@_Status'] === 'ERROR') {
@@ -361,17 +376,8 @@ export async function registerDomain(
   })
 
   try {
-    // Use POST method as recommended by Namecheap API
-    // Convert URLSearchParams for POST body
-    const requestParams = new URLSearchParams(requestData)
-
-    const response = await axios.post(getBaseUrl(), requestParams.toString(), {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    })
-
-    const parsed = parser.parse(response.data)
+    const data = await namecheapPost(requestData)
+    const parsed = parser.parse(data)
 
     const apiResponse = parsed.ApiResponse
     if (apiResponse['@_Status'] === 'ERROR') {
@@ -439,7 +445,7 @@ export async function transferDomain(
     ? `base64:${Buffer.from(eppCode).toString('base64')}`
     : eppCode
 
-  const params = new URLSearchParams({
+  const params = {
     ...getBaseParams(),
     Command: 'namecheap.domains.transfer.create',
     DomainName: domain,
@@ -447,10 +453,10 @@ export async function transferDomain(
     EPPCode: encodedEpp,
     AddFreeWhoisguard: addWhoisguard ? 'yes' : 'no',
     WGenable: addWhoisguard ? 'yes' : 'no',
-  })
+  }
 
-  const response = await axios.get(`${getBaseUrl()}?${params.toString()}`)
-  const parsed = parser.parse(response.data)
+  const data = await namecheapGet(params)
+  const parsed = parser.parse(data)
 
   const apiResponse = parsed.ApiResponse
   if (apiResponse['@_Status'] === 'ERROR') {
@@ -484,14 +490,14 @@ export interface DomainInfo {
 }
 
 export async function getDomainInfo(domain: string): Promise<DomainInfo> {
-  const params = new URLSearchParams({
+  const params = {
     ...getBaseParams(),
     Command: 'namecheap.domains.getInfo',
     DomainName: domain,
-  })
+  }
 
-  const response = await axios.get(`${getBaseUrl()}?${params.toString()}`)
-  const parsed = parser.parse(response.data)
+  const data = await namecheapGet(params)
+  const parsed = parser.parse(data)
 
   const apiResponse = parsed.ApiResponse
   if (apiResponse['@_Status'] === 'ERROR') {
@@ -519,15 +525,15 @@ export async function renewDomain(
   domain: string,
   years: number = 1,
 ): Promise<{ renewed: boolean; expireDate: string; chargedAmount: string }> {
-  const params = new URLSearchParams({
+  const params = {
     ...getBaseParams(),
     Command: 'namecheap.domains.renew',
     DomainName: domain,
     Years: String(years),
-  })
+  }
 
-  const response = await axios.get(`${getBaseUrl()}?${params.toString()}`)
-  const parsed = parser.parse(response.data)
+  const data = await namecheapGet(params)
+  const parsed = parser.parse(data)
 
   const apiResponse = parsed.ApiResponse
   if (apiResponse['@_Status'] === 'ERROR') {
