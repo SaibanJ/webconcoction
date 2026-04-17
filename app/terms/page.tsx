@@ -1,8 +1,9 @@
 import LegalLayout from '../components/LegalLayout'
 
 export const metadata = {
-  title: 'Terms of Service | WebConcoction',
+  title: 'Terms of Service',
   description: 'Terms and conditions for using WebConcoction services.',
+  alternates: { canonical: 'https://webconcoction.com/terms' },
 }
 
 export default function TermsOfService() {

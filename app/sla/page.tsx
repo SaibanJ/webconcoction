@@ -1,8 +1,9 @@
 import LegalLayout from '../components/LegalLayout'
 
 export const metadata = {
-  title: 'Service Level Agreement | WebConcoction',
+  title: 'Service Level Agreement',
   description: 'WebConcoction uptime guarantees, support response times, and service commitments.',
+  alternates: { canonical: 'https://webconcoction.com/sla' },
 }
 
 export default function SLA() {

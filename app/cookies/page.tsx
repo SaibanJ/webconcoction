@@ -1,8 +1,9 @@
 import LegalLayout from '../components/LegalLayout'
 
 export const metadata = {
-  title: 'Cookie Policy | WebConcoction',
+  title: 'Cookie Policy',
   description: 'Information about how WebConcoction uses cookies.',
+  alternates: { canonical: 'https://webconcoction.com/cookies' },
 }
 
 export default function CookiePolicy() {

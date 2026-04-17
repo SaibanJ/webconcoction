@@ -1,8 +1,9 @@
 import LegalLayout from '../components/LegalLayout'
 
 export const metadata = {
-  title: 'Privacy Policy | WebConcoction',
+  title: 'Privacy Policy',
   description: 'How WebConcoction collects, uses, and protects your personal information.',
+  alternates: { canonical: 'https://webconcoction.com/privacy' },
 }
 
 export default function PrivacyPolicy() {
