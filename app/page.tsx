@@ -20,6 +20,10 @@ const jsonLd = {
         "@type": "ImageObject",
         url: "https://webconcoction.com/icon",
       },
+      founder: {
+        "@type": "Person",
+        name: "James Saiban",
+      },
       contactPoint: {
         "@type": "ContactPoint",
         email: "support@webconcoction.com",
